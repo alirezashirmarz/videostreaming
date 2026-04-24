@@ -65,27 +65,6 @@ class Receiver:
     def on_pad(self, webrtc, pad):
         print("Receiving video...")
 
-        depay = Gst.ElementFactory.make("rtpvp8depay")
-        dec = Gst.ElementFactory.make("vp8dec")
-        conv = Gst.ElementFactory.make("videoconvert")
-        sink = Gst.ElementFactory.make("autovideosink")
-
-        self.pipe.add(depay, dec, conv, sink)
-
-        depay.link(dec)
-        dec.link(conv)
-        conv.link(sink)
-
-        pad.link(depay.get_static_pad("sink"))
-
-        depay.sync_state_with_parent()
-        dec.sync_state_with_parent()
-        conv.sync_state_with_parent()
-        sink.sync_state_with_parent()
-    """
-    def on_pad(self, webrtc, pad):
-        print("Receiving video...")
-
         caps = pad.get_current_caps().to_string()
 
         if "VP8" in caps:
@@ -115,7 +94,43 @@ class Receiver:
         dec.sync_state_with_parent()
         conv.sync_state_with_parent()
         sink.sync_state_with_parent()
-    
+    """
+    def on_pad(self, webrtc, pad):
+        print("Receiving video...")
+
+        caps = pad.get_current_caps()
+        if not caps:
+            caps = pad.query_caps(None)
+
+        caps_str = caps.to_string()
+        print("CAPS:", caps_str)
+
+        if "VP8" in caps_str:
+            depay = Gst.ElementFactory.make("rtpvp8depay")
+            dec = Gst.ElementFactory.make("vp8dec")
+
+        elif "H264" in caps_str:
+            depay = Gst.ElementFactory.make("rtph264depay")
+            dec = Gst.ElementFactory.make("avdec_h264")
+
+        else:
+            print("Unknown codec:", caps_str)
+            return
+
+        conv = Gst.ElementFactory.make("videoconvert")
+        sink = Gst.ElementFactory.make("autovideosink")
+
+        for e in [depay, dec, conv, sink]:
+            self.pipe.add(e)
+
+        depay.link(dec)
+        dec.link(conv)
+        conv.link(sink)
+
+        pad.link(depay.get_static_pad("sink"))
+
+        for e in [depay, dec, conv, sink]:
+            e.sync_state_with_parent()
     
 
 

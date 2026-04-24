@@ -14,27 +14,62 @@ Gst.init(None)
 
 
 CODEC = "h264"   # change here: vp8 / h264
+SOURCE = "files"   # test / webcam / files
+MY_PNG = "/home/alireza/mycg/CGReplay/Sources/Kombat/%04d.png"
 
+
+if SOURCE == "test":
+    SRC = "videotestsrc is-live=true"
+
+elif SOURCE == "webcam":
+    SRC = "v4l2src ! videoconvert"
+
+elif SOURCE == "files":
+    SRC = f"""
+    multifilesrc location={MY_PNG} start-index=1 loop=true caps=image/png,framerate=30/1 !
+    pngdec !
+    videoconvert !
+    videorate !
+    video/x-raw,framerate=30/1 !
+    queue !
+    identity sync=true
+    """
+
+# codec part
 if CODEC == "vp8":
-    PIPE = """
+    ENC = "vp8enc deadline=1 ! rtpvp8pay"
+    CAPS = "application/x-rtp,media=video,encoding-name=VP8,payload=96"
+
+elif CODEC == "h264":
+    ENC = "x264enc tune=zerolatency bitrate=1000 speed-preset=ultrafast ! rtph264pay config-interval=1"
+    CAPS = "application/x-rtp,media=video,encoding-name=H264,payload=96"
+
+PIPE = f"""
+webrtcbin name=send bundle-policy=max-bundle
+{SRC} ! {ENC} ! {CAPS} ! send.
+"""
+
+
+"""
+if CODEC == "vp8":
+    PIPE = '''
     webrtcbin name=send bundle-policy=max-bundle
     videotestsrc is-live=true !
     vp8enc !
     rtpvp8pay !
     application/x-rtp,media=video,encoding-name=VP8,payload=96 !
     send.
-    """
-
+    '''
 elif CODEC == "h264":
-    PIPE = """
+    PIPE = '''
     webrtcbin name=send bundle-policy=max-bundle
     videotestsrc is-live=true !
     x264enc tune=zerolatency bitrate=1000 speed-preset=ultrafast !
     rtph264pay config-interval=1 !
     application/x-rtp,media=video,encoding-name=H264,payload=96 !
     send.
-    """
-
+    '''
+"""
 
 #PIPE = """
 #webrtcbin name=send bundle-policy=max-bundle
