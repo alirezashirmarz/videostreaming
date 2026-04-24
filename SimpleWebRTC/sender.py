@@ -16,8 +16,22 @@ Gst.init(None)
 CODEC = "h264"   # change here: vp8 / h264
 SOURCE = "files"   # test / webcam / files
 MY_PNG = "/home/alireza/mycg/CGReplay/Sources/Kombat/%04d.png"
+WIDTH , HEIGHT = 640 , 480
+# HEIGHT = 480
+
+if SOURCE == "test":
+    SRC = f"videotestsrc is-live=true ! video/x-raw,width={WIDTH},height={HEIGHT}"
+
+elif SOURCE == "webcam":
+    SRC = f"v4l2src ! videoconvert ! videoscale ! video/x-raw,width={WIDTH},height={HEIGHT}"
+
+elif SOURCE == "files":
+    #SRC = f"multifilesrc location={MY_PNG} start-index=1 loop=true caps=image/png,framerate=30/1 ! pngdec ! videoconvert ! videoscale ! videorate ! video/x-raw,framerate=30/1,width={WIDTH},height={HEIGHT} ! queue ! identity sync=true ! videorate"
+    SRC = f"multifilesrc location={MY_PNG} start-index=1 loop=true caps=image/png,framerate=30/1 ! pngdec ! videoconvert ! videoscale ! videorate ! video/x-raw,framerate=30/1,width={WIDTH},height={HEIGHT} ! queue leaky=2 max-size-buffers=1 ! identity sync=true"
 
 
+
+"""
 if SOURCE == "test":
     SRC = "videotestsrc is-live=true"
 
@@ -25,7 +39,7 @@ elif SOURCE == "webcam":
     SRC = "v4l2src ! videoconvert"
 
 elif SOURCE == "files":
-    SRC = f"""
+    SRC = f'''
     multifilesrc location={MY_PNG} start-index=1 loop=true caps=image/png,framerate=30/1 !
     pngdec !
     videoconvert !
@@ -33,8 +47,8 @@ elif SOURCE == "files":
     video/x-raw,framerate=30/1 !
     queue !
     identity sync=true
-    """
-
+    '''
+"""
 # codec part
 if CODEC == "vp8":
     ENC = "vp8enc deadline=1 ! rtpvp8pay"
@@ -44,11 +58,18 @@ elif CODEC == "h264":
     ENC = "x264enc tune=zerolatency bitrate=1000 speed-preset=ultrafast ! rtph264pay config-interval=1"
     CAPS = "application/x-rtp,media=video,encoding-name=H264,payload=96"
 
+
 PIPE = f"""
 webrtcbin name=send bundle-policy=max-bundle
 {SRC} ! {ENC} ! {CAPS} ! send.
-"""
+""".replace("\n", " ")
 
+"""
+PIPE = f'''
+webrtcbin name=send bundle-policy=max-bundle
+{SRC} ! {ENC} ! {CAPS} ! send.
+'''
+"""
 
 """
 if CODEC == "vp8":
