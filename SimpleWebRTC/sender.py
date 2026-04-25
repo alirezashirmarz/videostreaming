@@ -17,8 +17,8 @@ ENCODER_CONFIG = {
     "codec": "h264",   # vp8 / h264
 
     # common
-    "bitrate": 1000,        # kbps (h264) / bps (vp8)
-    "fps": 30,
+    "bitrate": 3000,        # kbps (h264) / bps (vp8)
+    "fps": 24,
     "gop": 30,              # keyframe interval
     "width": 640,
     "height": 480,
@@ -29,7 +29,7 @@ ENCODER_CONFIG = {
     "bframes": 0,
 
     # Quantization Parameter (QP)
-    "qp_min": 50,
+    "qp_min": 70,
     "qp_max": 80,
 
     # vp8 specific
@@ -42,7 +42,7 @@ cfg = ENCODER_CONFIG  # define the object from the dictionary!
 ## Video Codec/Source Selection + Files for straming! 
 CODEC = "h264"   # change here: vp8 / h264
 SOURCE = "files"   # test / webcam / files
-MY_PNG = "/home/alireza/mycg/CGReplay/Sources/Forza/%04d.png"
+MY_PNG = "/home/alireza/mycg/CGReplay/Sources/Kombat/%04d.png"
 WIDTH , HEIGHT = cfg["width"] , cfg["height"] 
 FPS = cfg["fps"] # this only used for files state
 
@@ -70,7 +70,7 @@ elif SOURCE == "files":
 
 if cfg["codec"] == "h264":
     ENC = (
-        f"x264enc "
+        f"x264enc "  # CPU-only -> "x264enc" | GPU (NVIDIA) -> "nvh264enc"  | GPU (Intel) -> "vaapih264enc" 
         f"bitrate={cfg['bitrate']} "
         f"key-int-max={cfg['gop']} "
         f"qp-min={cfg['qp_min']} "
