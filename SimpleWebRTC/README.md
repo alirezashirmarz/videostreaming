@@ -24,10 +24,11 @@ Change this line:
 
         self.ws = await websockets.connect("ws://127.0.0.1:8765")
 
-👉  to: self.ws = await websockets.connect("ws://192.168.1.10:8765")
+👉  to: 
+        
+        self.ws = await websockets.connect("ws://192.168.1.10:8765")
 
-    
-⚠️ Important
+⚠️ Important Takaways!
         use server IP, NOT localhost
         same port: 8765
      🚀 Run order (different machines)
