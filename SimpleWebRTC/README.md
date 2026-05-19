@@ -4,71 +4,71 @@
 
 ✅ 1. On SERVER machine
 
-    Run:
+Run:
 
         python3 server.py
-
-    👉 It listens on:
-
-        ws://0.0.0.0:8765
+        
+👉 It listens on: ws://0.0.0.0:8765
 
 ✅ 2. Find server IP
 
-    Example:
+Example:
 
         ip a
-
-👉   suppose:
-
-        192.168.1.10 (Just assumption to understand! use you IP!)
+    
+👉   suppose: 192.168.1.10 (Just assumption to understand! use you IP!)
 
 ✅ 3. On BOTH sender & receiver
 
-    Change this line:
+Change this line:
 
         self.ws = await websockets.connect("ws://127.0.0.1:8765")
 
-👉      to:
+👉  to: self.ws = await websockets.connect("ws://192.168.1.10:8765")
 
-        self.ws = await websockets.connect("ws://192.168.1.10:8765")
     
-    ⚠️ Important
+⚠️ Important
         use server IP, NOT localhost
         same port: 8765
-    🚀 Run order (different machines)
+     🚀 Run order (different machines)
     
-    (1) On SERVER machine:
+(1) On SERVER machine:
+
         python3 server.py
 
-    (2) On RECEIVER machine:
+(2) On RECEIVER machine:
+
         python3 receiver.py
     
-    (3) On SENDER machine:
+(3) On SENDER machine:
+
         python3 sender.py
 
-    🔥 Networking checklist (very important)
+🔥 Networking checklist (very important)
 
-        If no connection:
+   If no connection:
 
-            1. Firewall
-                sudo ufw allow 8765
+1. Firewall
+    
+        sudo ufw allow 8765
             
-            2. Test connectivity
+2. Test connectivity
 
-            From client:
-                nc 192.168.1.10 8765
+    From client:
+   
+        nc 192.168.1.10 8765
 
-            👉 if connects → OK
+   👉 if connects → OK
 
-            💬 Ultra short
-            👉 replace 127.0.0.1 with server IP everywhere
-            👉 run server first
+    💬 Ultra short
+    👉 replace 127.0.0.1 with server IP everywhere
+    👉 run server first
             
-            ⚡ Optional (cleaner)
+⚡ Optional (cleaner)
 
-            In your code:
+In your code:
 
-            SERVER = "ws://192.168.1.10:8765"
-            self.ws = await websockets.connect(SERVER)
+        SERVER = "ws://192.168.1.10:8765"
+        self.ws = await websockets.connect(SERVER)
 
 
